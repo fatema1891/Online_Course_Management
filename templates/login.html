@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EduMaster Course Management System</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../static/css/style.css">
+    
+    <style>
+        /* Only login-specific styles not in style.css */
+        .login-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .login-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .login-header h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: #764ba2;
+        }
+
+        /* Remember me checkbox */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-label input {
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #764ba2;
+        }
+
+        /* Demo credentials */
+        .demo-credentials {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .demo-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .demo-item {
+            font-size: 0.85rem;
+            color: #666;
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-item i {
+            color: #4caf50;
+            font-size: 0.8rem;
+        }
+
+        .demo-item strong {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 2rem;
+            }
+            
+            .remember-me {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Simple Navbar for Login Page -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduMaster</span>
+            </a>
+            <div class="nav-links">
+                <a href="register.html"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Container -->
+    <div class="messages-container" id="messagesContainer">
+        <!-- Dynamic messages will appear here -->
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2>Welcome Back!</h2>
+                <p>Sign in to continue your learning journey</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" class="form-control" placeholder="Username or Email" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="form-control" placeholder="Password" required>
+                </div>
+
+                <div class="remember-me">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password" id="forgotPassword">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <div class="demo-credentials">
+                <div class="demo-title">
+                    <i class="fas fa-info-circle"></i> Demo Credentials
+                </div>
+                <div class="demo-item">
+                    <i class="fas fa-user-graduate"></i>
+                    <span><strong>Student:</strong> fatema / fatema123</span>
+                </div>
+                <div class="demo-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span><strong>Teacher:</strong> farjana / farjana123</span>
+                </div>
+                <div class="demo-item">
+                    <i class="fas fa-user-shield"></i>
+                    <span><strong>Admin:</strong> admin / admin123</span>
+                </div>
+            </div>
+
+            <div class="register-link">
+                <p>Don't have an account? <a href="register.html">Create Account</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 EduMaster. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to show messages
+        function showMessage(message, type = 'success') {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            
+            let icon = 'check-circle';
+            if (type === 'error') icon = 'exclamation-circle';
+            if (type === 'info') icon = 'info-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+            
+            messageDiv.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${message}</span>
+                <button class="message-close">&times;</button>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Add close functionality
+            messageDiv.querySelector('.message-close').addEventListener('click', function() {
+                messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
+                setTimeout(() => messageDiv.remove(), 300);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
+                    setTimeout(() => messageDiv.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Save current user to localStorage
+        function setCurrentUser(user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+
+        // Get users from localStorage
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users') || '[]');
+        }
+
+        // Demo users (fallback if no users registered)
+        function initializeDemoUsers() {
+            let users = getUsers();
+            
+            if (users.length === 0) {
+                // Create demo users
+                const demoUsers = [
+                    {
+                        username: 'fatema',
+                        email: 'fatema@example.com',
+                        password: 'fatema123',
+                        role: 'student',
+                        registeredAt: new Date().toISOString()
+                    },
+                    {
+                        username: 'farjana',
+                        email: 'farjana@example.com',
+                        password: 'farjana123',
+                        role: 'teacher',
+                        registeredAt: new Date().toISOString()
+                    },
+                    {
+                        username: 'admin',
+                        email: 'admin@example.com',
+                        password: 'admin123',
+                        role: 'admin',
+                        registeredAt: new Date().toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('users', JSON.stringify(demoUsers));
+            }
+        }
+
+        // Handle login
+        function handleLogin(usernameOrEmail, password, rememberMe) {
+            const users = getUsers();
+            
+            // Find user by username or email
+            const user = users.find(u => 
+                (u.username === usernameOrEmail || u.email === usernameOrEmail) && 
+                u.password === password
+            );
+            
+            if (user) {
+                // Login successful
+                const loggedInUser = {
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                    loginTime: new Date().toISOString()
+                };
+                
+                setCurrentUser(loggedInUser);
+                
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', usernameOrEmail);
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+                
+                showMessage(`Welcome back, ${user.username}! Redirecting to dashboard...`, 'success');
+                
+                // Disable submit button
+                const submitBtn = document.querySelector('.btn-login');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+                
+                // Redirect to dashboard after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+                return true;
+            } else {
+                showMessage('Invalid username/email or password!', 'error');
+                return false;
+            }
+        }
+
+        // Initialize demo users on first load
+        initializeDemoUsers();
+
+        // Check for remembered user
+        const rememberedUser = localStorage.getItem('rememberedUser');
+        if (rememberedUser) {
+            document.getElementById('username').value = rememberedUser;
+            document.getElementById('rememberMe').checked = true;
+        }
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!username || !password) {
+                showMessage('Please enter both username/email and password', 'error');
+                return;
+            }
+            
+            handleLogin(username, password, rememberMe);
+        });
+
+        // Forgot password functionality
+        document.getElementById('forgotPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                showMessage('Please enter your username or email to reset password', 'info');
+                return;
+            }
+            
+            const users = getUsers();
+            const user = users.find(u => u.username === username || u.email === username);
+            
+            if (user) {
+                showMessage(`Password reset link sent to ${user.email}. Demo password: ${user.password}`, 'info');
+            } else {
+                showMessage('User not found! Please check your username/email.', 'error');
+            }
+        });
+
+        // Add input focus effects
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateX(5px)';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Enter key navigation
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
+
+
