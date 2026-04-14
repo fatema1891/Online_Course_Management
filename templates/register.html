@@ -330,5 +330,192 @@
         </div>
     </footer>
 
+    <script>
+        // Password strength checker
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]+/)) strength++;
+            if (password.match(/[A-Z]+/)) strength++;
+            if (password.match(/[0-9]+/)) strength++;
+            if (password.match(/[$@#&!]+/)) strength++;
+            
+            const strengthMap = {
+                0: { width: '0%', color: '#e0e0e0', text: 'Very Weak' },
+                1: { width: '20%', color: '#f44336', text: 'Weak' },
+                2: { width: '40%', color: '#ff9800', text: 'Fair' },
+                3: { width: '60%', color: '#ffc107', text: 'Good' },
+                4: { width: '80%', color: '#4caf50', text: 'Strong' },
+                5: { width: '100%', color: '#4caf50', text: 'Very Strong' }
+            };
+            
+            return strengthMap[strength] || strengthMap[0];
+        }
+
+        passwordInput.addEventListener('input', function() {
+            const strength = checkPasswordStrength(this.value);
+            strengthBar.style.width = strength.width;
+            strengthBar.style.background = strength.color;
+            strengthText.textContent = strength.text;
+            strengthText.style.color = strength.color;
+        });
+
+        // Real-time password match validation
+        const confirmPassword = document.getElementById('confirmPassword');
+        function validatePasswordMatch() {
+            const password = passwordInput.value;
+            const confirm = confirmPassword.value;
+            
+            if (confirm && password !== confirm) {
+                confirmPassword.style.borderColor = '#f44336';
+                return false;
+            } else {
+                confirmPassword.style.borderColor = '#4caf50';
+                return true;
+            }
+        }
+
+        passwordInput.addEventListener('input', validatePasswordMatch);
+        confirmPassword.addEventListener('input', validatePasswordMatch);
+
+        // Function to show messages
+        function showMessage(message, type = 'success') {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            
+            let icon = 'check-circle';
+            if (type === 'error') icon = 'exclamation-circle';
+            if (type === 'info') icon = 'info-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+            
+            messageDiv.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${message}</span>
+                <button class="message-close">&times;</button>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Add close functionality
+            messageDiv.querySelector('.message-close').addEventListener('click', function() {
+                messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
+                setTimeout(() => messageDiv.remove(), 300);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
+                    setTimeout(() => messageDiv.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Save user data to localStorage
+        function saveUser(userData) {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Check if user already exists
+            const userExists = users.some(u => u.username === userData.username || u.email === userData.email);
+            
+            if (userExists) {
+                showMessage('User with this username or email already exists!', 'error');
+                return false;
+            }
+            
+            users.push(userData);
+            localStorage.setItem('users', JSON.stringify(users));
+            return true;
+        }
+
+        // Handle form submission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = passwordInput.value;
+            const confirm = confirmPassword.value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+            
+            // Validation
+            if (!username || !email || !password || !confirm) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showMessage('Username must be at least 3 characters long', 'error');
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            if (password !== confirm) {
+                showMessage('Passwords do not match!', 'error');
+                return;
+            }
+            
+            // Create user object
+            const userData = {
+                username: username,
+                email: email,
+                password: password,
+                role: role,
+                registeredAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            if (saveUser(userData)) {
+                showMessage(`Registration successful! Welcome ${username}! Redirecting to login...`, 'success');
+                
+                // Disable submit button
+                const submitBtn = document.querySelector('.btn-register');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+                
+                // Redirect to login page after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        });
+
+        // Animate role selection on hover
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px)';
+            });
+            option.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add input focus effects
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateX(5px)';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
 </body>
 </html>
