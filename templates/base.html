@@ -1,154 +1,76 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduMaster - Online Course Management System</title>
-    
-    <!-- Google Fonts -->
+    <!-- Google Fonts, Font Awesome, Custom CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-    <!-- Custom CSS -->
-      {% load static %} 
-     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-     {% comment %} <link rel="stylesheet" href="../static/css/style.css"> {% endcomment %}
+    <!-- Extra CSS for specific pages (login, register, etc.) -->
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Animated Background -->
     <div class="bg-animation"></div>
 
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo">
+            <a href="{% url 'accounts:dashboard' %}" class="logo">
                 <i class="fas fa-graduation-cap"></i>
                 <span>EduMaster</span>
             </a>
             <div class="nav-links">
-                <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="#"><i class="fas fa-book"></i> My Courses</a>
-                <a href="#"><i class="fas fa-plus-circle"></i> Manage Courses</a>
-                <a href="#"><i class="fas fa-chalkboard-teacher"></i> Assign Teacher</a>
-                <div class="user-info">
-                    <div class="user-avatar">F</div>
-                    <div>
-                        <strong>Fatema Akther</strong>
-                        <span class="role-badge role-admin">Admin</span>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <!-- Role-based menu items (will be refined later) -->
+                    {% if user.role == 'student' %}
+                        <a href="#"><i class="fas fa-book"></i> My Courses</a>
+                    {% elif user.role == 'teacher' %}
+                        <a href="#"><i class="fas fa-chalkboard-teacher"></i> My Courses</a>
+                    {% elif user.role == 'admin' %}
+                        <a href="#"><i class="fas fa-plus-circle"></i> Add Course</a>
+                        <a href="#"><i class="fas fa-users"></i> Assign Teacher</a>
+                    {% endif %}
+                    <div class="user-info">
+                        <div class="user-avatar">{{ user.username|first|upper }}</div>
+                        <div>
+                            <strong>{{ user.username }}</strong>
+                            <span class="role-badge role-{{ user.role }}">{{ user.role|title }}</span>
+                        </div>
+                        <a href="{% url 'accounts:logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
-                    <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="{% url 'accounts:register' %}"><i class="fas fa-user-plus"></i> Register</a>
+                {% endif %}
             </div>
-            <div class="mobile-menu-btn">
-                <i class="fas fa-bars"></i>
-            </div>
+            <div class="mobile-menu-btn"><i class="fas fa-bars"></i></div>
         </div>
     </nav>
 
-    <!-- Messages Container -->
+    <!-- Django Messages -->
     <div class="messages-container">
-        <div class="message message-success">
-            <i class="fas fa-check-circle"></i>
-            <span>Welcome to EduMaster! Your dashboard is ready.</span>
-            <button class="message-close">&times;</button>
-        </div>
-        <div class="message message-info">
-            <i class="fas fa-info-circle"></i>
-            <span>You have 3 new course registrations.</span>
-            <button class="message-close">&times;</button>
-        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button class="message-close">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 
-    <!-- Main Content -->
     <main class="main-container">
-        <div class="grid">
-            <!-- Card 1 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-chalkboard"></i> Total Courses
-                </div>
-                <h2 style="font-size: 3rem; color: #667eea; margin: 1rem 0;">24</h2>
-                <p>Active courses available for enrollment</p>
-                <button class="btn btn-primary mt-3">
-                    <i class="fas fa-eye"></i> View All Courses
-                </button>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-users"></i> Total Students
-                </div>
-                <h2 style="font-size: 3rem; color: #4caf50; margin: 1rem 0;">156</h2>
-                <p>Enrolled students across all courses</p>
-                <button class="btn btn-primary mt-3">
-                    <i class="fas fa-user-graduate"></i> Manage Students
-                </button>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-chalkboard-teacher"></i> Total Teachers
-                </div>
-                <h2 style="font-size: 3rem; color: #ff9800; margin: 1rem 0;">12</h2>
-                <p>Expert instructors on the platform</p>
-                <button class="btn btn-primary mt-3">
-                    <i class="fas fa-users"></i> View Teachers
-                </button>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-file-alt"></i> Pending Tasks
-                </div>
-                <h2 style="font-size: 3rem; color: #f44336; margin: 1rem 0;">8</h2>
-                <p>Tasks awaiting your attention <br><br> </p>
-                <button class="btn btn-primary mt-3">
-                    <i class="fas fa-tasks"></i> View Tasks
-                </button>
-            </div>
-        </div>
-
-        <!-- Recent Activity Section -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <i class="fas fa-clock"></i> Recent Activity
-            </div>
-            <div style="margin-top: 1rem;">
-                <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 1rem;">
-                    <i class="fas fa-user-plus" style="color: #4caf50; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong>Farjana</strong> enrolled in <strong>Web Development Bootcamp</strong>
-                        <div style="font-size: 0.8rem; color: #999;">2 hours ago</div>
-                    </div>
-                </div>
-                <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 1rem;">
-                    <i class="fas fa-upload" style="color: #2196f3; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong>Prof. Sanjida Islam</strong> uploaded new materials for <strong>Data Science</strong>
-                        <div style="font-size: 0.8rem; color: #999;">5 hours ago</div>
-                    </div>
-                </div>
-                <div style="padding: 1rem; display: flex; align-items: center; gap: 1rem;">
-                    <i class="fas fa-check-circle" style="color: #ff9800; font-size: 1.2rem;"></i>
-                    <div>
-                        <strong>Course Python Masterclass</strong> has been approved
-                        <div style="font-size: 0.8rem; color: #999;">Yesterday</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% block content %}
+        {% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <!-- <p>&copy; 2026 EduMaster. All rights reserved.</p> -->
             <p>&copy; 2026 EduMaster.<br>
             Developed by <strong>Fatema Akther</strong>, Dept. of CSE, CSTU.</p>
             <div class="footer-links">
@@ -159,7 +81,6 @@
         </div>
     </footer>
 
-    
     <script>
         // Mobile menu toggle
         const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -211,7 +132,7 @@
             }
         });
 
-        // Button click handlers
+        // Button click handlers (keep as is, but not interfering)
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 if (!this.classList.contains('no-alert')) {
@@ -221,7 +142,6 @@
                         this.style.transform = '';
                     }, 200);
                     
-                    // Show temporary message
                     const tempMsg = document.createElement('div');
                     tempMsg.className = 'message message-info';
                     tempMsg.innerHTML = `
@@ -231,13 +151,11 @@
                     `;
                     document.querySelector('.messages-container').appendChild(tempMsg);
                     
-                    // Add close functionality to new message
                     tempMsg.querySelector('.message-close').addEventListener('click', function() {
                         tempMsg.style.animation = 'slideOutRight 0.3s ease-out forwards';
                         setTimeout(() => tempMsg.remove(), 300);
                     });
                     
-                    // Auto remove after 3 seconds
                     setTimeout(() => {
                         if (tempMsg.parentNode) {
                             tempMsg.style.animation = 'slideOutRight 0.3s ease-out forwards';
@@ -248,5 +166,8 @@
             });
         });
     </script>
+
+    <!-- Extra JavaScript for specific pages -->
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

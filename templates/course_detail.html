@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .course-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+    .course-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .course-info {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    .info-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+    }
+    .materials-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .material-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    .material-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .upload-area {
+        border: 2px dashed #667eea;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 1.5rem;
+        background: rgba(102,126,234,0.05);
+    }
+    .btn-upload {
+        background: #4caf50;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    @media (max-width: 768px) {
+        .course-header h1 { font-size: 1.8rem; }
+        .material-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-detail-container">
+    <!-- Course Header -->
+    <div class="course-header">
+        <h1>{{ course.name }}</h1>
+        <p>{{ course.description|default:"No description available." }}</p>
+        <div class="course-info">
+            <span class="info-badge"><i class="fas fa-chalkboard-teacher"></i> Teacher: {{ teacher_name|default:"Not assigned" }}</span>
+            <span class="info-badge"><i class="fas fa-users"></i> Students enrolled: {{ student_count|default:0 }}</span>
+            <span class="info-badge"><i class="fas fa-file-alt"></i> Materials: {{ materials|length }}</span>
+            {% if user.role == 'student' %}
+                {% if is_enrolled %}
+                    <span class="info-badge" style="background: #4caf50;"><i class="fas fa-check-circle"></i> Enrolled</span>
+                {% else %}
+                    <span class="info-badge" style="background: #ff9800;"><i class="fas fa-plus-circle"></i> Not enrolled</span>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Course Materials Section -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-download"></i> Course Materials
+        </div>
+        <div class="materials-list">
+            {% for material in materials %}
+            <div class="material-item">
+                <div>
+                    <strong><i class="fas fa-file-{{ material.file_type }}"></i> {{ material.title }}</strong>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">{{ material.description|truncatewords:15 }}</p>
+                    <small>Uploaded on {{ material.uploaded_at|date:"F j, Y" }}</small>
+                </div>
+                <div>
+                    <a href="{{ material.file.url }}" class="btn btn-primary" download><i class="fas fa-download"></i> Download</a>
+                    {% if user.role == 'teacher' or user.role == 'admin' %}
+                    <button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="showMessage('Edit material: {{ material.title }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="text-align: center; padding: 2rem;">No materials uploaded yet.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Upload material (for teachers and admins) -->
+        {% if user.role == 'teacher' or user.role == 'admin' %}
+        <div class="upload-area">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #667eea;"></i>
+            <h3>Upload New Material</h3>
+            <form method="post" enctype="multipart/form-data" action="{% url 'courses:upload_material' course.id %}">
+                {% csrf_token %}
+                <input type="text" name="title" placeholder="Material title" required style="padding: 0.5rem; margin: 0.5rem; border-radius: 8px; border: 1px solid #ccc;">
+                <textarea name="description" placeholder="Description" rows="2" style="width: 80%; padding: 0.5rem; margin: 0.5rem; border-radius: 8px;"></textarea>
+                <input type="file" name="file" required style="margin: 0.5rem;">
+                <button type="submit" class="btn-upload"><i class="fas fa-upload"></i> Upload</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Student Enrollment Button (only if not enrolled and role is student) -->
+    {% if user.role == 'student' and not is_enrolled %}
+    <div class="card mt-3" style="text-align: center;">
+        <button class="btn btn-primary btn-large" onclick="showMessage('Enrolling in {{ course.name }}...')">
+            <i class="fas fa-user-plus"></i> Enroll in this Course
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Admin/Teacher additional actions -->
+    {% if user.role == 'admin' %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <i class="fas fa-cog"></i> Admin Controls
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="showMessage('Edit course details')"><i class="fas fa-edit"></i> Edit Course</button>
+            <button class="btn btn-secondary" onclick="showMessage('Assign teacher to this course')"><i class="fas fa-chalkboard-teacher"></i> Assign Teacher</button>
+            <button class="btn btn-secondary" onclick="showMessage('View enrolled students list')"><i class="fas fa-users"></i> Manage Students</button>
+        </div>
+    </div>
+    {% elif user.role == 'teacher' %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <i class="fas fa-users"></i> Enrolled Students
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="showMessage('View list of enrolled students')"><i class="fas fa-list"></i> View Students</button>
+            <button class="btn btn-secondary" onclick="showMessage('Send announcement')"><i class="fas fa-bullhorn"></i> Announcement</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Reuse the showMessage function from base.html – it already exists.
+    // If needed, add any page-specific JS.
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // prevent form submission for demo buttons (unless it's a real form)
+            if (this.type !== 'submit' && !this.classList.contains('no-alert')) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => this.style.transform = '', 200);
+            }
+        });
+    });
+</script>
+{% endblock %}

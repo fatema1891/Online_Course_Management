@@ -1,231 +1,295 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - EduMaster</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../static/css/style.css">
-    <style>
-        /* Dashboard specific styles */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-            padding: 1.5rem;
-            border-radius: 20px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-number { font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0; }
-        .course-list { display: flex; flex-direction: column; gap: 1rem; }
-        .course-item {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        .course-item:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .role-selector {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .role-btn {
-            padding: 0.75rem 2rem;
-            border: 2px solid #667eea;
-            background: white;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .role-btn.active, .role-btn:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        .dashboard-section { display: none; animation: fadeInUp 0.4s ease-out; }
-        .dashboard-section.active { display: block; }
-        .progress-bar {
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 8px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-        .progress-fill {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="bg-animation"></div>
+{% extends 'base.html' %}
+{% load static %}
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo"><i class="fas fa-graduation-cap"></i><span>EduMaster</span></a>
-            <div class="nav-links">
-                <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="#"><i class="fas fa-book"></i> My Courses</a>
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">F</div>
-                    <div><strong id="userName">Fatema Akther</strong><span class="role-badge" id="userRoleBadge">Student</span></div>
-                    <a href="login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
+{% block extra_css %}
+<style>
+    /* Dashboard specific styles (keeping your original design) */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+        padding: 1.5rem;
+        border-radius: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-number { font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0; }
+    .course-list { display: flex; flex-direction: column; gap: 1rem; }
+    .course-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .course-item:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .progress-bar {
+        background: #e0e0e0;
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+        width: 200px;
+    }
+    .progress-fill {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .btn-secondary:hover { background: #5a6268; }
+    .btn-info {
+        background: #17a2b8;
+        color: white;
+    }
+    .btn-info:hover { background: #138496; }
+    .w-100 { width: 100%; margin-bottom: 0.5rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .course-item { flex-direction: column; align-items: stretch; }
+        .progress-bar { width: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Role-specific sections: only one is shown based on user.role -->
+    
+    {% if user.role == 'student' %}
+    <!-- Student Dashboard -->
+    <div class="dashboard-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-book" style="font-size: 2rem; color: #667eea;"></i>
+                <div class="stat-number">{{ enrolled_courses_count|default:"0" }}</div>
+                <div>Enrolled Courses</div>
             </div>
-            <div class="mobile-menu-btn"><i class="fas fa-bars"></i></div>
-        </div>
-    </nav>
-
-    <div class="messages-container" id="messagesContainer"></div>
-
-    <main class="main-container">
-        <!-- Role Selector (for demo only) -->
-        <div class="role-selector">
-            <button class="role-btn active" onclick="switchRole('student')">👨‍🎓 Student View</button>
-            <button class="role-btn" onclick="switchRole('teacher')">👨‍🏫 Teacher View</button>
-            <button class="role-btn" onclick="switchRole('admin')">👑 Admin View</button>
-        </div>
-
-        <!-- Student Dashboard -->
-        <div id="studentSection" class="dashboard-section active">
-            <div class="stats-grid">
-                <div class="stat-card"><i class="fas fa-book" style="font-size: 2rem; color: #667eea;"></i><div class="stat-number">4</div><div>Enrolled Courses</div></div>
-                <div class="stat-card"><i class="fas fa-clock" style="font-size: 2rem; color: #4caf50;"></i><div class="stat-number">65%</div><div>Overall Progress</div></div>
-                <div class="stat-card"><i class="fas fa-trophy" style="font-size: 2rem; color: #ff9800;"></i><div class="stat-number">3</div><div>Certificates</div></div>
+            <div class="stat-card">
+                <i class="fas fa-clock" style="font-size: 2rem; color: #4caf50;"></i>
+                <div class="stat-number">{{ overall_progress|default:"0" }}%</div>
+                <div>Overall Progress</div>
             </div>
-            <div class="card"><div class="card-header"><i class="fas fa-graduation-cap"></i> My Enrolled Courses</div>
-                <div class="course-list">
-                    <div class="course-item"><div><strong>Web Development Bootcamp</strong><div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div></div><button class="btn btn-primary" onclick="showMessage('Opening Web Development course...')">Continue</button></div>
-                    <div class="course-item"><div><strong>Python Masterclass</strong><div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div></div><button class="btn btn-primary" onclick="showMessage('Opening Python course...')">Continue</button></div>
-                    <div class="course-item"><div><strong>Data Science Fundamentals</strong><div class="progress-bar"><div class="progress-fill" style="width: 90%"></div></div></div><button class="btn btn-primary" onclick="showMessage('Opening Data Science course...')">Continue</button></div>
-                </div>
-                <button class="btn btn-primary mt-3" onclick="showMessage('Browse available courses')"><i class="fas fa-plus"></i> Browse More Courses</button>
+            <div class="stat-card">
+                <i class="fas fa-trophy" style="font-size: 2rem; color: #ff9800;"></i>
+                <div class="stat-number">{{ certificates_count|default:"0" }}</div>
+                <div>Certificates</div>
             </div>
         </div>
-
-        <!-- Teacher Dashboard -->
-        <div id="teacherSection" class="dashboard-section">
-            <div class="stats-grid">
-                <div class="stat-card"><i class="fas fa-chalkboard" style="font-size: 2rem; color: #667eea;"></i><div class="stat-number">3</div><div>Teaching Courses</div></div>
-                <div class="stat-card"><i class="fas fa-users" style="font-size: 2rem; color: #4caf50;"></i><div class="stat-number">45</div><div>Total Students</div></div>
-                <div class="stat-card"><i class="fas fa-file-alt" style="font-size: 2rem; color: #ff9800;"></i><div class="stat-number">12</div><div>Materials Uploaded</div></div>
-            </div>
-            <div class="card"><div class="card-header"><i class="fas fa-book"></i> My Teaching Courses</div>
-                <div class="course-list">
-                    <div class="course-item"><div><strong>Advanced JavaScript</strong><p style="margin-top: 0.25rem; color: #666;">24 students enrolled</p></div><div><button class="btn btn-primary" onclick="showMessage('View students list')"><i class="fas fa-users"></i> View Students</button><button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="showMessage('Upload materials')"><i class="fas fa-upload"></i> Upload</button></div></div>
-                    <div class="course-item"><div><strong>React & Node.js</strong><p style="margin-top: 0.25rem; color: #666;">18 students enrolled</p></div><div><button class="btn btn-primary" onclick="showMessage('View students list')"><i class="fas fa-users"></i> View Students</button><button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="showMessage('Upload materials')"><i class="fas fa-upload"></i> Upload</button></div></div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-graduation-cap"></i> My Enrolled Courses</div>
+            <div class="course-list">
+                {% for enrollment in enrolled_courses %}
+                <div class="course-item">
+                    <div style="flex:1">
+                        <strong>{{ enrollment.course.name }}</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" data-progress="{{ enrollment.progress|default:0 }}" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="showMessage('Opening {{ enrollment.course.name }}...')">
+                        Continue
+                    </button>
                 </div>
-                <button class="btn btn-primary mt-3" onclick="showMessage('Create new course')"><i class="fas fa-plus"></i> Create New Course</button>
+                {% empty %}
+                <p>You are not enrolled in any course yet. <a href="#">Browse courses</a></p>
+               
             </div>
-            <div class="card mt-3"><div class="card-header"><i class="fas fa-clock"></i> Recent Activity</div>
-                <div class="course-list"><div class="course-item"><i class="fas fa-user-plus" style="color: #4caf50;"></i><div><strong>5 new students</strong> enrolled in Advanced JavaScript</div><span style="color: #999;">2 hours ago</span></div>
-                <div class="course-item"><i class="fas fa-comment" style="color: #2196f3;"></i><div><strong>Samiha Akter</strong> asked a question in React course</div><span style="color: #999;">Yesterday</span></div></div>
+            <button class="btn btn-primary mt-3" onclick="showMessage('Browse available courses')">
+                <i class="fas fa-plus"></i> Browse More Courses
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if user.role == 'teacher' %}
+    <!-- Teacher Dashboard (same as student, just different stats) -->
+    <div class="dashboard-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users" style="font-size: 2rem; color: #4caf50;"></i>
+                <div class="stat-number">{{ total_students_count|default:"0" }}</div>
+                <div>Total Students</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-alt" style="font-size: 2rem; color: #ff9800;"></i>
+                <div class="stat-number">{{ materials_uploaded_count|default:"0" }}</div>
+                <div>Materials Uploaded</div>
             </div>
         </div>
-
-        <!-- Admin Dashboard -->
-        <div id="adminSection" class="dashboard-section">
-            <div class="stats-grid">
-                <div class="stat-card"><i class="fas fa-users" style="font-size: 2rem; color: #667eea;"></i><div class="stat-number">156</div><div>Total Users</div></div>
-                <div class="stat-card"><i class="fas fa-book" style="font-size: 2rem; color: #4caf50;"></i><div class="stat-number">24</div><div>Total Courses</div></div>
-                <div class="stat-card"><i class="fas fa-chalkboard-teacher" style="font-size: 2rem; color: #ff9800;"></i><div class="stat-number">12</div><div>Teachers</div></div>
-                <div class="stat-card"><i class="fas fa-graduation-cap" style="font-size: 2rem; color: #f44336;"></i><div class="stat-number">144</div><div>Students</div></div>
-            </div>
-            <div class="grid">
-                <div class="card"><div class="card-header"><i class="fas fa-plus-circle"></i> Quick Actions</div>
-                    <button class="btn btn-primary w-100 mb-2" onclick="showMessage('Create new course form')"><i class="fas fa-plus"></i> Add New Course</button>
-                    <button class="btn btn-secondary w-100 mb-2" onclick="showMessage('Assign teacher to course')"><i class="fas fa-user-plus"></i> Assign Teacher</button>
-                    <button class="btn btn-info w-100" onclick="showMessage('View all users')"><i class="fas fa-list"></i> View All Users</button>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-book"></i> My Teaching Courses</div>
+            <div class="course-list">
+                {% for course in teaching_courses %}
+                <div class="course-item">
+                    <div>
+                        <strong>{{ course.name }}</strong>
+                        <p style="margin-top: 0.25rem; color: #666;">{{ course.student_count }} students enrolled</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" onclick="showMessage('View students for {{ course.name }}')">
+                            <i class="fas fa-users"></i> View Students
+                        </button>
+                        <button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="showMessage('Upload materials for {{ course.name }}')">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
+                    </div>
                 </div>
-                <div class="card"><div class="card-header"><i class="fas fa-chart-line"></i> Platform Stats</div>
-                    <div><p>📊 Active Courses: <strong>20</strong></p><div class="progress-bar"><div class="progress-fill" style="width: 83%"></div></div></div>
-                    <div class="mt-2"><p>👥 User Growth: <strong>+15%</strong></p><div class="progress-bar"><div class="progress-fill" style="width: 65%"></div></div></div>
-                    <div class="mt-2"><p>📈 Completion Rate: <strong>72%</strong></p><div class="progress-bar"><div class="progress-fill" style="width: 72%"></div></div></div>
-                </div>
+                {% empty %}
+                <p>You are not teaching any courses yet. Contact admin to assign courses.</p>
+                {% endfor %}
             </div>
-            <div class="card mt-3"><div class="card-header"><i class="fas fa-clock"></i> Recent Registrations</div>
-                <div class="course-list"><div class="course-item"><i class="fas fa-user" style="color: #4caf50;"></i><div><strong>Adiba Tasnim</strong> - Student</div><span>2 hours ago</span></div>
-                <div class="course-item"><i class="fas fa-chalkboard-teacher" style="color: #ff9800;"></i><div><strong>Prof. Sanzida Islam</strong> - Teacher</div><span>Yesterday</span></div>
-                <div class="course-item"><i class="fas fa-user" style="color: #4caf50;"></i><div><strong>Miftahul Jannat</strong> - Student</div><span>Yesterday</span></div></div>
+            <button class="btn btn-primary mt-3" onclick="showMessage('Create new course form')">
+                <i class="fas fa-plus"></i> Create New Course
+            </button>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-clock"></i> Recent Activity</div>
+            <div class="course-list">
+                {% for activity in teacher_activities %}
+                <div class="course-item">
+                    <i class="fas fa-{{ activity.icon }}" data-color="{{ activity.color }}" style="color: #667eea;"></i>
+                    <div><strong>{{ activity.title }}</strong> {{ activity.description }}</div>
+                    <span style="color: #999;">{{ activity.time_ago }}</span>
+                </div>
+                {% empty %}
+                <p>No recent activity.</p>
+                {% endfor %}
             </div>
         </div>
-    </main>
+    </div>
+    {% endif %}
 
-    <footer class="footer"><div class="footer-content"><p>&copy; 2026 EduMaster. Developed by Fatema Akther, Dept. of CSE, CSTU.</p><div class="footer-links"><a href="#"><i class="fas fa-question-circle"></i> Help</a><a href="#"><i class="fas fa-envelope"></i> Contact</a><a href="#"><i class="fas fa-shield-alt"></i> Privacy</a></div></div></footer>
+    {% if user.role == 'admin' %}
+    <!-- Admin Dashboard -->
+    <div class="dashboard-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users" style="font-size: 2rem; color: #667eea;"></i>
+                <div class="stat-number">{{ total_users|default:"0" }}</div>
+                <div>Total Users</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-book" style="font-size: 2rem; color: #4caf50;"></i>
+                <div class="stat-number">{{ total_courses|default:"0" }}</div>
+                <div>Total Courses</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chalkboard-teacher" style="font-size: 2rem; color: #ff9800;"></i>
+                <div class="stat-number">{{ total_teachers|default:"0" }}</div>
+                <div>Teachers</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #f44336;"></i>
+                <div class="stat-number">{{ total_students|default:"0" }}</div>
+                <div>Students</div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-plus-circle"></i> Quick Actions</div>
+                <button class="btn btn-primary w-100 mb-2" onclick="showMessage('Add new course form')">
+                    <i class="fas fa-plus"></i> Add New Course
+                </button>
+                <button class="btn btn-secondary w-100 mb-2" onclick="showMessage('Assign teacher to course')">
+                    <i class="fas fa-user-plus"></i> Assign Teacher
+                </button>
+                <button class="btn btn-info w-100" onclick="showMessage('View all users')">
+                    <i class="fas fa-list"></i> View All Users
+                </button>
+            </div>
+            {% comment %} <div class="card">
+                <div class="card-header"><i class="fas fa-chart-line"></i> Platform Stats</div>
+                <div>
+                    <p>📊 Active Courses: <strong>{{ active_courses|default:"0" }}</strong></p>
+                    <div class="progress-bar"><div class="progress-fill" data-progress="{{ active_courses_percent|default:"0" }}" style="width: 0%;"></div></div>
+                </div>
+                <div class="mt-2">
+                    <p>👥 User Growth: <strong>+{{ user_growth|default:"0" }}%</strong></p>
+                    <div class="progress-bar"><div class="progress-fill" data-progress="{{ user_growth|default:"0" }}" style="width: 0%;"></div></div>
+                </div>
+                <div class="mt-2">
+                    <p>📈 Completion Rate: <strong>{{ completion_rate|default:"0" }}%</strong></p>
+                    <div class="progress-bar"><div class="progress-fill" data-progress="{{ completion_rate|default:"0" }}" style="width: 0%;"></div></div>
+                </div>
+            </div> {% endcomment %}
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-clock"></i> Recent Registrations</div>
+            <div class="course-list">
+                {% for reg in recent_registrations %}
+                <div class="course-item">
+                    <i class="fas fa-{% if reg.role == 'teacher' %}chalkboard-teacher{% else %}user{% endif %}" data-color="{% if reg.role == 'teacher' %}#ff9800{% else %}#4caf50{% endif %}" style="color: #667eea;"></i>
+                    <div><strong>{{ reg.name }}</strong> - {{ reg.role|title }}</div>
+                    <span>{{ reg.time_ago }}</span>
+                </div>
+                {% empty %}
+                <p>No recent registrations.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <script>
-        // Current user data (simulated - will come from Django backend)
-        let currentUser = { name: 'Fatema Akther', avatar: 'F', role: 'student', roleDisplay: 'Student' };
-        
-        // Update UI based on current user
-        function updateUserUI() {
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userAvatar').textContent = currentUser.avatar;
-            document.getElementById('userRoleBadge').textContent = currentUser.roleDisplay;
-            document.getElementById('userRoleBadge').className = `role-badge role-${currentUser.role}`;
-        }
-        
-        // Switch between roles (for demo)
-        function switchRole(role) {
-            currentUser.role = role;
-            currentUser.roleDisplay = role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : 'Admin';
-            currentUser.name = role === 'student' ? 'Fatema Akther' : role === 'teacher' ? 'Prof. Sanzida Islam' : 'Admin User';
-            currentUser.avatar = currentUser.name.charAt(0);
-            updateUserUI();
-            
-            document.querySelectorAll('.dashboard-section').forEach(section => section.classList.remove('active'));
-            document.getElementById(`${role}Section`).classList.add('active');
-            
-            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            showMessage(`Switched to ${currentUser.roleDisplay} view`, 'info');
-        }
-        
-        // Show message function
-        function showMessage(message, type = 'success') {
-            const container = document.getElementById('messagesContainer');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message message-${type}`;
-            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
-            msgDiv.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span><button class="message-close">&times;</button>`;
-            container.appendChild(msgDiv);
-            msgDiv.querySelector('.message-close').onclick = () => { msgDiv.style.animation = 'slideOutRight 0.3s forwards'; setTimeout(() => msgDiv.remove(), 300); };
-            setTimeout(() => { if(msgDiv.parentNode) { msgDiv.style.animation = 'slideOutRight 0.3s forwards'; setTimeout(() => msgDiv.remove(), 300); } }, 4000);
-        }
-        
-        // Mobile menu toggle
-        document.querySelector('.mobile-menu-btn')?.addEventListener('click', () => document.querySelector('.nav-links').classList.toggle('active'));
-        
-        // Navbar scroll effect
-        window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            if(window.scrollY > 50) { navbar.style.background = 'rgba(255,255,255,0.98)'; navbar.style.boxShadow = '0 5px 25px rgba(0,0,0,0.1)'; }
-            else { navbar.style.background = 'rgba(255,255,255,0.95)'; navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)'; }
+{% block extra_js %}
+<script>
+    // Reusable message function (copied from base's logic, but keep for consistency)
+    function showMessage(message, type = 'success') {
+        const container = document.querySelector('.messages-container');
+        if (!container) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message message-${type}`;
+        const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+        msgDiv.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span><button class="message-close">&times;</button>`;
+        container.appendChild(msgDiv);
+        msgDiv.querySelector('.message-close').onclick = () => {
+            msgDiv.style.animation = 'slideOutRight 0.3s forwards';
+            setTimeout(() => msgDiv.remove(), 300);
+        };
+        setTimeout(() => {
+            if (msgDiv.parentNode) {
+                msgDiv.style.animation = 'slideOutRight 0.3s forwards';
+                setTimeout(() => msgDiv.remove(), 300);
+            }
+        }, 4000);
+    }
+
+    // Add hover effects to any remaining .btn elements (already in base, but safe)
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!this.classList.contains('no-alert')) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => this.style.transform = '', 200);
+            }
         });
-        
-        // Initialize
-        updateUserUI();
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}

@@ -1,12 +1,10 @@
 
 from django.contrib import admin
-from django.urls import path
-from accounts.views import dashboard_view, login_view, register_view
+from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dashboard/', dashboard_view, name='dashboard'),
-    path('login/', login_view, name='login'),
-    path('register/', register_view, name='register'),
-    path('', login_view), # This makes login the home page
+    path('accounts/', include('accounts.urls')),   # all auth URLs under /accounts/
+    path('', RedirectView.as_view(pattern_name='accounts:login', permanent=False)),
 ]
